@@ -1,0 +1,4 @@
+ofxCenteredTrueTypeFont
+ofxGui
+ofxJSON
+ofxSQLiteCpp

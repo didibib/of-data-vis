@@ -4,30 +4,32 @@
 #include "ofxGui.h"
 #include "SQLiteCpp.h"
 #include "ofxJSON.h"
+#include "PieChart.h"
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp {
 
-	public:
-		ofxPanel gui;
-		ofParameter<int> year;
+public:
+	ofxPanel gui;
+	ofParameter<int> year;
+	ofParameter<bool> totpop;
 
-		void setup();
-		void update();
-		void draw();
+	ofxGuiGroup gender;
+	ofParameter<bool> man;
+	ofParameter<bool> women;
+	void updateGender();
+	void drawGender();	
 
-		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
+	void setup();
+	void update();
+	void draw();
+	float pctToAngle(float pct);
 
-	private:
-		SQLite::Database* db;
-		
+private:
+	ofTrueTypeFont font;
+	SQLite::Database* db;
+	int selectedYear;
+	int totalPop;
+	double pctMen;
+	double pctWomen;
+
 };

@@ -1,0 +1,2 @@
+ofxSQLiteCpp
+ofxJSON
