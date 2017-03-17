@@ -1,0 +1,3 @@
+ofxCenteredTrueTypeFont
+ofxGui
+ofxJSON

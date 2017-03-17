@@ -144,21 +144,21 @@ void ofApp::drawVisualisation() {
 	ofPopMatrix();
 }
 
-
 void ofApp::drawMaxCircle() {
+	int maxVal;
 	if (north > east) {
 		maxVal = north;
 	}
 	if (east > north) {
 		maxVal = east;
 	}
-	if (south > maxRadius) {
+	if (south > totalSize) {
 		maxVal = south;
 	}
-	if (west > maxRadius) {
+	if (west > totalSize) {
 		maxVal = west;
 	}
 	maxVal *= 1.0f / total * size;
-	maxRadius = sqrt(pow(maxVal, 2) + pow(maxVal, 2));
+	totalSize = sqrt(pow(maxVal, 2) + pow(maxVal, 2));
 }
 */

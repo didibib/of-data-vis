@@ -32,6 +32,5 @@ class ofApp : public ofBaseApp {
 
 		int size = 2;
 		int turn;
-		int maxVal;
 		int totalSize;
 };

@@ -1,2 +1,4 @@
-ofxSQLiteCpp
+ofxCenteredTrueTypeFont
+ofxGui
 ofxJSON
+ofxSQLiteCpp
