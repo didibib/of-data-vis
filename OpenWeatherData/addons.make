@@ -1,3 +1,2 @@
-ofxCenteredTrueTypeFont
 ofxGui
 ofxJSON

@@ -4,57 +4,84 @@ FlowField::FlowField() {
 
 }
 
-FlowField::FlowField(int r, int ficou, vector<float> degs)
+FlowField::FlowField(int colsperfield, int fieldcount, vector<float> degree, vector<float> speed)
 {
-	resolution = r;
-	degree = degs;
-	fieldcount = ficou;
+	this->resolution = ofGetWidth() / fieldcount / colsperfield;
+	this->colsperfield = colsperfield;
+	this->fieldcount = fieldcount; // elements from data
+	this->degree = degree;
+	this->speed = speed;
+
+	maxspeed = *max_element(begin(speed), end(speed));
 	cols = ofGetWidth() / resolution;
-	fieldwidth = cols / fieldcount;
 	rows = ofGetHeight() / resolution;
+	fieldwidth = cols / fieldcount;
+	elementsperfield = fieldwidth * rows;
 
-	//setup();
+	lowcolor = ofColor::fromHex(0x8EA1F0); 
+	highcolor = ofColor::fromHex(0xF5FAC8);
+
+	setup();
 }
 
-void FlowField::setup() {
-	
-}
-
-void FlowField::display() {
+void FlowField::setup() {	
 	for (int i = 0; i < fieldcount; i++) {
 		for (int x = 0; x < fieldwidth; x++) {
 			for (int y = 0; y < rows; y++) {
-				int index = x + y*cols;
-				ofPushMatrix();
-				ofTranslate(x * resolution, y * resolution);
-				cout << degree[fieldcount] << endl;
-				//ofRotate(degree[fieldcount]);
-				ofSetColor(ofColor::black);
-				ofDrawLine(0, 0, 0, resolution - 2);
-				ofPopMatrix();
-				//field[index] = ofVec2f(cos(degree[fieldcount] * DEG_TO_RAD), sin(degree[fieldcount] * DEG_TO_RAD));
+				ofVec2f line = ofVec2f(cos(degree[i] * DEG_TO_RAD), sin(degree[i] * DEG_TO_RAD));
+				field.push_back(line);
+			}
+		}
+		Area area = Area(i * fieldwidth * resolution, 0, fieldwidth * resolution, ofGetHeight(), ofToString(speed[i]), ofToString(degree[i]));
+		areas.push_back(area);
+	}
+}
+
+void FlowField::display() {	
+	fieldata();
+	for (int i = 0; i < fieldcount; i++) {
+		for (int x = 0; x < fieldwidth; x++) {
+			for (int y = 0; y < rows; y++) {				
+				drawVector(field[y + x * rows + i * elementsperfield], x * resolution + i * resolution * colsperfield, y * resolution, speed[i]);
 			}
 		}
 	}
-/*
-	for (int y = 0; y < rows; y++) {
-		for (int x = 0; x < cols; x++) {
-			drawVector(field[x + y * cols], x * resolution, y * resolution, resolution - 2);
-		}
-	}
-*/
+	stringstream info;
+	info << "speed: " << strspeed << endl;
+	info << "degree: " << strdegree << endl;
+	ofDrawBitmapStringHighlight(info.str(), ofGetMouseX(), ofGetMouseY() - 30);
 }
 
-void FlowField::drawVector(ofVec2f v, float x, float y, float scalel) {
+void FlowField::fieldata() {
+	for (int i = 0; i < fieldcount; i++) {
+		if (areas[i].rect.inside(ofGetMouseX(), ofGetMouseY())) {
+			areas[i].draw();
+			strdegree = areas[i].degree;
+			strspeed = areas[i].speed;
+		}
+	}
+}
+
+void FlowField::drawVector(ofVec2f v, float x, float y, float scale) {
+	float vectorscale = scale * resolution / maxspeed;
+
 	ofPushMatrix();
-	float arrowSize = 4;
-	ofTranslate(x, y);
+	float len = v.length() * scale; // length() = magnitude
+	ofTranslate(x + resolution / 2, y + resolution / 2);
+	ofRotateZ(v.angle(ofVec2f(1, 0)));
 
-	//ofRotateZ(degree);
-
-	float len = v.length() * scalel; // length() for magnitude
-	ofSetColor(ofColor::black);
-	ofDrawLine(0, 0, len, 0);
+	ofFill();
+	float mspeed = ofMap(scale, 0, maxspeed, 0, 1);
+	//cout << "mspeed " << scale << endl;
+	ofColor color = lowcolor.lerp(highcolor, mspeed);
+	ofSetColor(lowcolor.lerp(highcolor, mspeed));
+	ofDrawLine(-len / 2, 0, len / 2, 0);
+	float radius = vectorscale;
+	ofPoint p1 = ofPoint(radius/2, 0);
+	ofPoint p2 = ofPoint(-radius/2, -radius/3);
+	ofPoint p3 = ofPoint(-radius/2, radius/3);
+	ofDrawTriangle(p1, p2, p3);
+	ofNoFill();
 
 	ofPopMatrix();
 }
@@ -62,5 +89,5 @@ void FlowField::drawVector(ofVec2f v, float x, float y, float scalel) {
 ofVec2f FlowField::lookup(ofVec2f lookup) {
 	int column = int(ofClamp(lookup.x / resolution, 0, cols - 1));
 	int row = int(ofClamp(lookup.y / resolution, 0, rows - 1));
-	return field[column + ofGetWidth() * row];
+	return field[row + column * rows];
 }

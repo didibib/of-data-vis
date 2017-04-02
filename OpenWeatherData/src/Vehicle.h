@@ -7,12 +7,12 @@ class Vehicle
 {
 public:
 	Vehicle();
-	Vehicle(ofVec2f l, float ms, float mf);
+	Vehicle(ofVec2f position, float maxspeed, float maxforce);
 
 	ofVec2f position;
 	ofVec2f velocity;
 	ofVec2f acceleration;
-	float r;
+	float radius;
 	float maxforce;
 	float maxspeed;
 
@@ -24,4 +24,3 @@ public:
 
 	void applyForce(ofVec2f force);
 };
-

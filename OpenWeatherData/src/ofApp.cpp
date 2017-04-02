@@ -1,12 +1,13 @@
 #include "ofApp.h"
 
 void ofApp::setup() {
-	getData();
-	for (int i = 0; i < elementCount; i++) {
-		flowfield = FlowField(resolution, elementCount, degree);
-	}	
-}
+	colsperfield = 1;
+	getData();	
 
+	for (int i = 0; i < elementCount; i++) {
+		flowfield = FlowField(colsperfield, elementCount, degree, speed);
+	}
+}
 
 void ofApp::update() {
 
@@ -14,43 +15,48 @@ void ofApp::update() {
 
 void ofApp::draw() {
 	flowfield.display();
-
-	//ofPushMatrix();
-
-	//ofTranslate(500, 500);
-	//ofVec2f line = ofVec2f(cos(degree * DEG_TO_RAD), sin(degree * DEG_TO_RAD));
-	//ofRotateZ(degree);
-	//float len = line.length() * 100; // length() = magnitude
-	//ofSetColor(ofColor::black);
-	//ofDrawLine(0, 0, len, 0);
-
-	//ofPopMatrix();
+	for (Vehicle v : vehicles) {
+		v.follow(flowfield);
+		v.run();
+	}
 }
 
 void ofApp::keyPressed(int key) {
-    getData();
+	getData();
 }
 
 void ofApp::getData() {
-    string url = "http://api.openweathermap.org/data/2.5/forecast?q=Amsterdam,nl&appid=37f584c9d170b496e7abe382b2237a5a&units=metric";
+	string url = "http://api.openweathermap.org/data/2.5/forecast?q=Amsterdam,nl&appid=37f584c9d170b496e7abe382b2237a5a&units=metric";
 
-    bool success = json.open(url);
-    if (success) {
-        elementCount = json["cnt"].asInt();
-        ofLog() << json["cnt"].asInt() << " elementen gekregen" << endl;
+	bool success = json.open(url);
+	if (success) {
+		elementCount = json["cnt"].asInt();
+		ofLog() << json["cnt"].asInt() << " elementen gekregen" << endl;
 
-        for (int i = 0; i < elementCount; ++i) {
-            ofLog() << "wind speed #" << i << " : " << json["list"][i]["wind"]["speed"] << endl;
-			ofLog() << "wind speed #" << i << " : " << json["list"][i]["wind"]["deg"] << endl;
-			speed = json["list"][i]["wind"]["speed"].asFloat();
+		for (int i = 0; i < elementCount; ++i) {
+			//ofLog() << "wind speed #" << i << " : " << json["list"][i]["wind"]["speed"] << endl;
+			//ofLog() << "wind speed #" << i << " : " << json["list"][i]["wind"]["deg"] << endl;
+			speed.push_back(json["list"][i]["wind"]["speed"].asFloat());
 			degree.push_back(json["list"][i]["wind"]["deg"].asFloat());
-        }
+		}
 
-    } else {
-        ofLog() << "Oops. No data!" << endl;
-    }
+	}
+	else {
+		ofLog() << "Oops. No data!" << endl;
+		elementCount = 20;
+		for (int i = 0; i < elementCount; ++i) {
+			speed.push_back(ofRandom(10, 20));
+			if (i % 2 == 0)
+				degree.push_back(20);
+			else if (i % 3 == 0)
+				degree.push_back(40);
+			else
+				degree.push_back(50);
+		}
+	}
 }
 
-void ofApp::visualize() {
-	
+void ofApp::mousePressed(int x, int y, int button) {
+	float maxspeed = *std::max_element(begin(speed), end(speed));
+	vehicles.push_back(Vehicle(ofVec2f(mouseX, mouseY), maxspeed, ofRandom(0.1, 0.5)));
 }
